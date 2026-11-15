@@ -118,6 +118,15 @@ test('uden SU: SU-rækken er slået fra', () => {
   const b = make({ hasSu: false, jobGross: 14000 });
   eq(b.incomes.find((i) => i.type === 'su').enabled, false); eq(summarize(b).income.suNet, 0);
 });
+test('uddannelse: 18-19-årige får grundsats, og ungdomsuddannelse har lavere fribeløb', () => {
+  const u20 = make({ education: 'uu_u20' }), uu = make({ education: 'uu', jobGross: 18000 }), vu = make({ education: 'vu', jobGross: 18000 });
+  eq(u20.incomes.find((i) => i.type === 'su').amount, 1154);
+  eq(uu.incomes.find((i) => i.type === 'su').amount, vu.incomes.find((i) => i.type === 'su').amount);
+  uu.expenses = []; vu.expenses = [];
+  eq(summarize(uu).fribeloebExceeded, true); eq(summarize(vu).fribeloebExceeded, false);
+  const none = make({ education: 'none', jobGross: 30000 }); none.expenses = [];
+  eq(summarize(none).fribeloebExceeded, false); eq(none.incomes.find((i) => i.type === 'su').enabled, false);
+});
 
 const failed = results.filter((r) => r.startsWith('FAIL')).length;
 document.getElementById('out').textContent = results.join('\n') + `\n\nRESULT: ${results.length - failed}/${results.length} bestået`;

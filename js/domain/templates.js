@@ -100,11 +100,14 @@ const resolve = (v, profile, fallback) =>
   typeof v === 'function' ? v(profile) : v ?? fallback;
 
 /**
- * @param {{name?: string, housing: string, city: string, hasCar: boolean, jobGross?: number, hasSu?: boolean}} input
+ * @param {{name?: string, housing: string, city: string, hasCar: boolean, jobGross?: number, education?: string, hasSu?: boolean}} input
  * @returns {import('./model.js').Budget}
  */
 export function createBudgetFromProfile(input) {
+  const education = input.education ?? (input.hasSu === false ? 'none' : 'vu');
+  const under20 = education === 'uu_u20';
   const profile = {
+    education,
     housing: input.housing,
     city: input.city,
     hasCar: !!input.hasCar,
@@ -123,7 +126,8 @@ export function createBudgetFromProfile(input) {
     profile,
     tax: { ...RATES.tax },
     incomes: [
-      income('su', 'SU (udeboende)', RATES.suUdeboendeGross, input.hasSu !== false, true),
+      income('su', under20 ? 'SU (grundsats – tjek dit tillæg på su.dk)' : 'SU (udeboende)',
+        under20 ? RATES.suUngdomUnder20Gross : RATES.suUdeboendeGross, education !== 'none', true),
       income('job', 'Studiejob', jobGross, jobGross > 0, true),
       income('boligstotte', 'Boligstøtte', 0, false),
       income('su_loan', 'SU-lån', RATES.suLoanMonthly, false),

@@ -99,7 +99,8 @@ export function summarize(budget, rates = RATES) {
     extraJobGross,
     extraHoursPerMonth: extraJobGross / wage,
     hourlyWage: wage,
-    fribeloebExceeded: jobAfterAm > rates.fribeloebMonthly,
+    fribeloebExceeded: budget.profile.education !== 'none' &&
+      jobAfterAm > (budget.profile.education?.startsWith('uu') ? rates.fribeloebUngdomMonthly : rates.fribeloebMonthly),
   };
 }
 
@@ -141,6 +142,9 @@ export function advice(budget, s) {
   }
   if (s.fribeloebExceeded) {
     out.push({ level: 'warn', text: 'Din løn kommer tæt på eller over SU-fribeløbet. Tjener du for meget, skal du betale SU tilbage – tjek su.dk.' });
+  }
+  if (budget.profile.education === 'uu_u20') {
+    out.push({ level: 'info', text: 'Som 18–19-årig på en ungdomsuddannelse får du som udgangspunkt kun grundsatsen plus et tillæg, der afhænger af dine forældres indkomst. Slå dit præcise beløb op i minSU, og ret SU-beløbet.' });
   }
   if (budget.incomes.some((i) => i.enabled && i.type === 'su_loan' && i.amount > 0)) {
     out.push({ level: 'info', text: 'SU-lån er et lån. Det skal betales tilbage med renter efter studiet, så lån kun det, du har brug for.' });

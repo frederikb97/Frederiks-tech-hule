@@ -12,6 +12,7 @@
  * @property {Housing} housing
  * @property {City} city
  * @property {boolean} hasCar
+ * @property {'vu'|'uu'|'uu_u20'|'none'} [education]  Mangler i ældre data = 'vu'
  * @property {number} hourlyWage   Timeløn før skat, bruges til "hvor mange timer skal jeg arbejde"
  *
  * @typedef {Object} TaxSettings
@@ -111,6 +112,13 @@ export const HOUSING_LABELS = {
   alone: 'Egen lejlighed',
   shared: 'Deler lejlighed / bofællesskab',
   dorm: 'Kollegium / ungdomsbolig',
+};
+
+export const EDUCATION_LABELS = {
+  vu: 'Videregående uddannelse (universitet, professionshøjskole, erhvervsakademi)',
+  uu: 'Ungdomsuddannelse, og jeg er fyldt 20 år',
+  uu_u20: 'Ungdomsuddannelse, og jeg er 18–19 år',
+  none: 'Jeg får ikke SU (i lære med elevløn, eller i arbejde)',
 };
 
 export const CITY_LABELS = {

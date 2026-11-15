@@ -1,4 +1,4 @@
-import { CITY_LABELS, HOUSING_LABELS, activeBudget } from '../../domain/model.js';
+import { CITY_LABELS, EDUCATION_LABELS, HOUSING_LABELS, activeBudget } from '../../domain/model.js';
 import { createBudgetFromProfile } from '../../domain/templates.js';
 import { RATES } from '../../domain/rates.js';
 import { esc, kr, options } from '../util.js';
@@ -45,14 +45,13 @@ export function render(state) {
         <legend>3. Har du bil?</legend>
         <label class="choice"><input type="checkbox" name="hasCar"> Ja, jeg har (eller vil have) bil</label>
       </fieldset>
-      <fieldset class="field">
-        <legend>4. Får du SU?</legend>
-        <label class="choice"><input type="radio" name="hasSu" value="yes" checked> Ja, jeg er (eller bliver) studerende</label>
-        <label class="choice"><input type="radio" name="hasSu" value="no"> Nej, jeg er i lære eller arbejder</label>
-      </fieldset>
+      <label class="field">4. Hvad læser du?
+        <select name="education">${options(EDUCATION_LABELS, 'vu')}</select>
+        <small class="muted">Det afgør, hvor meget SU du får, og hvor meget du må tjene ved siden af.</small>
+      </label>
       <label class="field">5. Hvad tjener du på et job om måneden – før skat?
         <input name="jobGross" type="number" inputmode="numeric" min="0" step="100" placeholder="0">
-        <small class="muted">Skriv 0, hvis du ikke har et job. Elevløn og fuldtidsløn skrives også her. Får du SU, lægger vi ${kr(RATES.suUdeboendeGross)} før skat ind for dig.</small>
+        <small class="muted">Skriv 0, hvis du ikke har et job. Elevløn og fuldtidsløn skrives også her. Din SU lægger vi selv ind (${kr(RATES.suUdeboendeGross)} før skat for udeboende).</small>
       </label>
       <button class="btn btn-primary" type="submit">Lav mit budget</button>
     </form>`;
@@ -68,7 +67,7 @@ export function handle(type, ev, store) {
       city: f.get('city'),
       hasCar: f.get('hasCar') === 'on',
       jobGross: f.get('jobGross'),
-      hasSu: f.get('hasSu') !== 'no',
+      education: f.get('education'),
     });
     store.update((s) => {
       s.budgets.push(budget);

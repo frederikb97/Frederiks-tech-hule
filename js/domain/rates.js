@@ -5,8 +5,12 @@ export const RATES = {
   year: 2026,
   /** SU til udeboende på videregående uddannelse, kr./md. før skat. */
   suUdeboendeGross: 7426,
+  /** Grundsats for 18-19-årige på ungdomsuddannelse, kr./md. før skat. Tillæg afhænger af forældrenes indkomst. */
+  suUngdomUnder20Gross: 1154,
   /** Laveste fribeløb, videregående uddannelse, kr./md. */
   fribeloebMonthly: 20749,
+  /** Laveste fribeløb, ungdomsuddannelse, kr./md. */
+  fribeloebUngdomMonthly: 15297,
   /** SU-lån, kr./md. – ca.-beløb, tjek su.dk. */
   suLoanMonthly: 3799,
   tax: {

@@ -50,7 +50,7 @@ AppState
 
 Budget
  ├─ id, name, createdAt, updatedAt
- ├─ profile : Profile       housing (alone|shared|dorm), city (kbh|aarhus|storby|other),
+ ├─ profile : Profile       education (vu|uu|uu_u20|none), housing (alone|shared|dorm), city (kbh|aarhus|storby|other),
  │                          hasCar, hourlyWage
  ├─ tax     : TaxSettings   taxRate, monthlyAllowance, amRate
  ├─ incomes : Income[]      id, type (su|job|su_loan|boligstotte|parents|other),

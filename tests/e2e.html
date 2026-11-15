@@ -3,6 +3,10 @@
 <body><pre id="out">kører…</pre><iframe id="f" src="../index.html" style="width:420px;height:800px"></iframe>
 <script type="module">
 // Klikker appen igennem i en iframe. Rydder gemte data først!
+if (!['localhost', '127.0.0.1'].includes(location.hostname)) {
+  document.getElementById('out').textContent = 'Denne test rydder gemte budgetter og kører derfor kun på localhost.';
+  throw new Error('kun localhost');
+}
 const out = [];
 const check = (name, ok, extra = '') => out.push((ok ? 'ok   ' : 'FAIL ') + name + (ok ? '' : ' — ' + extra));
 const wait = (ms = 50) => new Promise((r) => setTimeout(r, ms));

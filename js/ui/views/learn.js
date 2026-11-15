@@ -27,8 +27,8 @@ export function render() {
     <section class="card">
       <h2>Ord, du møder</h2>
       <dl class="glossary">
-        <dt>SU</dt><dd>Statens Uddannelsesstøtte. Udeboende på en videregående uddannelse får ${kr(RATES.suUdeboendeGross)} om måneden før skat i ${RATES.year}. Du betaler skat af SU.</dd>
-        <dt>Fribeløb</dt><dd>Det, du må tjene ved siden af SU'en – som udgangspunkt ${kr(RATES.fribeloebMonthly)} om måneden. Tjener du mere, skal du betale SU tilbage.</dd>
+        <dt>SU</dt><dd>Statens Uddannelsesstøtte. Udeboende på en videregående uddannelse får ${kr(RATES.suUdeboendeGross)} om måneden før skat i ${RATES.year}. Er du fyldt 20 år og udeboende på en ungdomsuddannelse, får du det samme. Er du 18–19 år på en ungdomsuddannelse, får du normalt kun en grundsats på ${kr(RATES.suUngdomUnder20Gross)} plus et tillæg, der afhænger af dine forældres indkomst. Du betaler skat af SU.</dd>
+        <dt>Fribeløb</dt><dd>Det, du må tjene ved siden af SU'en – som udgangspunkt ${kr(RATES.fribeloebMonthly)} om måneden på en videregående uddannelse og ${kr(RATES.fribeloebUngdomMonthly)} på en ungdomsuddannelse. Tjener du mere, skal du betale SU tilbage.</dd>
         <dt>SU-lån</dt><dd>Et lån fra staten oven i SU'en, ca. ${kr(RATES.suLoanMonthly)} om måneden. Det er billigt, men det er gæld og skal betales tilbage med renter.</dd>
         <dt>Boligstøtte</dt><dd>Tilskud til huslejen, hvis du bor til leje og har eget køkken. Beløbet afhænger af husleje og indkomst.</dd>
         <dt>Depositum og forudbetalt leje</dt><dd>Penge, du betaler udlejer ved indflytning – ofte tre måneders husleje i depositum plus op til tre måneder forudbetalt. Dem skal du have klar, før du flytter.</dd>
