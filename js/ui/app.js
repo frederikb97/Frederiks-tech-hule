@@ -3,11 +3,12 @@ import { createRepository } from '../data/storage.js';
 import { createStore } from './store.js';
 import * as start from './views/start.js';
 import * as budget from './views/budget.js';
+import * as movein from './views/movein.js';
 import * as overview from './views/overview.js';
 import * as learn from './views/learn.js';
 
-const VIEWS = { start, budget, overview, learn };
-const NEEDS_BUDGET = new Set(['budget', 'overview']);
+const VIEWS = { start, budget, movein, overview, learn };
+const NEEDS_BUDGET = new Set(['budget', 'movein', 'overview']);
 const root = document.getElementById('app');
 const store = createStore(createRepository(localStorage));
 

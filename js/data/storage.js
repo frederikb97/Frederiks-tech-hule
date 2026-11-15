@@ -2,6 +2,7 @@
 // `adapter` skal bare have getItem/setItem (localStorage, en Map-wrapper til test,
 // eller senere en server), så resten af appen kender ikke til lagringen.
 import { SCHEMA_VERSION } from '../domain/model.js';
+import { ensureMoveIn } from '../domain/templates.js';
 
 export const STORAGE_KEY = 'budgetmodel';
 
@@ -9,7 +10,10 @@ export const STORAGE_KEY = 'budgetmodel';
 export const emptyState = () => ({ schemaVersion: SCHEMA_VERSION, activeBudgetId: null, budgets: [] });
 
 /** Trin-for-trin-migreringer: MIGRATIONS[n] løfter data fra version n til n+1. */
-const MIGRATIONS = {};
+const MIGRATIONS = {
+  // v1 → v2: engangsudgifter ved indflytning kom til.
+  1: (state) => ({ ...state, budgets: state.budgets.filter(isBudget).map(ensureMoveIn) }),
+};
 
 export function migrate(raw) {
   if (!raw || typeof raw !== 'object' || !Array.isArray(raw.budgets)) return emptyState();
@@ -21,7 +25,7 @@ export function migrate(raw) {
     v += 1;
   }
   state.schemaVersion = SCHEMA_VERSION;
-  state.budgets = state.budgets.filter(isBudget);
+  state.budgets = state.budgets.filter(isBudget).map(ensureMoveIn);
   return state;
 }
 

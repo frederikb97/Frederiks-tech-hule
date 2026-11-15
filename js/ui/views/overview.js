@@ -1,5 +1,5 @@
 import { activeBudget } from '../../domain/model.js';
-import { advice, summarize } from '../../domain/calc.js';
+import { advice, summarize, summarizeMoveIn } from '../../domain/calc.js';
 import { RATES } from '../../domain/rates.js';
 import { budgetFromJson, budgetToCsv, budgetToJson, download } from '../../data/exporters.js';
 import { esc, kr, slug } from '../util.js';
@@ -9,6 +9,7 @@ const ICON = { bad: '⛔', warn: '⚠️', good: '✅', info: '💡' };
 export function render(state) {
   const b = activeBudget(state);
   const s = summarize(b);
+  const mi = summarizeMoveIn(b);
   const max = Math.max(1, ...s.byCategory.map((c) => c.total));
   const pct = (n) => (s.expensesTotal > 0 ? Math.round((n / s.expensesTotal) * 100) : 0);
   const cats = s.byCategory.filter((c) => c.total > 0).sort((a, z) => z.total - a.total);
@@ -38,6 +39,14 @@ export function render(state) {
       <label class="field inline">Timeløn før skat
         <input type="number" inputmode="numeric" min="1" step="5" value="${s.hourlyWage}" data-setting="hourlyWage" data-fid="hourlyWage"> kr.
       </label>
+    </section>
+
+    <section class="card">
+      <h2>Inden du flytter</h2>
+      <p>Indflytningen koster ca. <strong>${kr(mi.total)}</strong> én gang. ${mi.missing > 0
+        ? `Du mangler <strong class="neg">${kr(mi.missing)}</strong>${mi.months ? ` – ca. ${mi.months} måneders opsparing` : ''}.`
+        : 'Det har du sparet op til. ✅'}</p>
+      <a class="btn no-print" href="#movein">Se indflytningsudgifter</a>
     </section>
 
     <section class="card">

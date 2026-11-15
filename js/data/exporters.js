@@ -1,6 +1,7 @@
 // Eksport/import: CSV som Excel kan åbne direkte, og JSON som backup.
 import { CATEGORIES, INCOME_TYPES, KIND_LABELS, PERIOD_LABELS, uid } from '../domain/model.js';
-import { summarize, toMonthly } from '../domain/calc.js';
+import { summarize, summarizeMoveIn, toMonthly } from '../domain/calc.js';
+import { ensureMoveIn } from '../domain/templates.js';
 import { isBudget } from './storage.js';
 
 const num = (n) => (Math.round(n * 100) / 100).toString().replace('.', ',');
@@ -30,7 +31,11 @@ export function budgetToCsv(budget) {
     ['Resultat', '', 'Udgifter i alt', '', '', num(s.expensesTotal)],
     ['Resultat', '', 'Til overs', '', '', num(s.balance)],
     ['Resultat', '', 'Behov ud over SU', '', '', num(s.needBeyondSu)]);
-  return '﻿' + rows.map((r) => r.map(cell).join(';')).join('\r\n') + '\r\n';
+  const mi = summarizeMoveIn(budget);
+  rows.push([], ['Indflytning (engangsudgifter)', '', 'Post', 'Beløb', '', '', 'Medregnet']);
+  for (const i of budget.moveIn?.items ?? []) rows.push(['Indflytning', '', i.label, num(i.amount), 'én gang', '', i.enabled ? 'ja' : 'nej']);
+  rows.push(['Indflytning', '', 'I alt', num(mi.total)], ['Indflytning', '', 'Opsparet', num(mi.saved)], ['Indflytning', '', 'Mangler', num(mi.missing)]);
+  return '\uFEFF' + rows.map((r) => r.map(cell).join(';')).join('\r\n') + '\r\n';
 }
 
 export const budgetToJson = (budget) => JSON.stringify({ format: 'budgetmodel', budget }, null, 2);
@@ -40,7 +45,7 @@ export function budgetFromJson(text) {
   const data = JSON.parse(text);
   const budget = data?.budget ?? data;
   if (!isBudget(budget)) throw new Error('Filen ligner ikke et budget fra denne app.');
-  return { ...budget, id: uid(), updatedAt: new Date().toISOString() };
+  return ensureMoveIn({ ...budget, id: uid(), updatedAt: new Date().toISOString() });
 }
 
 export function download(filename, content, mime) {

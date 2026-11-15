@@ -38,6 +38,18 @@
  * @property {boolean} enabled
  * @property {string} [hint]
  *
+ * @typedef {Object} MoveInItem
+ * @property {string} id
+ * @property {string} label
+ * @property {number} amount
+ * @property {boolean} enabled
+ * @property {string} [hint]
+ *
+ * @typedef {Object} MoveIn  Engangsudgifter ved indflytning
+ * @property {MoveInItem[]} items
+ * @property {number} saved           Det, man allerede har sparet op
+ * @property {number} monthlySaving   Det, man kan lægge til side pr. måned inden flytningen
+ *
  * @typedef {Object} Budget
  * @property {string} id
  * @property {string} name
@@ -47,6 +59,7 @@
  * @property {TaxSettings} tax
  * @property {Income[]} incomes
  * @property {Expense[]} expenses
+ * @property {MoveIn} moveIn
  *
  * @typedef {Object} AppState
  * @property {number} schemaVersion
@@ -54,7 +67,7 @@
  * @property {Budget[]} budgets
  */
 
-export const SCHEMA_VERSION = 1;
+export const SCHEMA_VERSION = 2;
 
 /** Hvor mange måneder en periode dækker. */
 export const PERIOD_MONTHS = { month: 1, quarter: 3, halfyear: 6, year: 12 };

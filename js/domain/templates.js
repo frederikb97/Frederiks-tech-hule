@@ -64,11 +64,43 @@ const EXPENSE_TEMPLATE = [
     hint: 'Cyklen punkterer, telefonen går i stykker. Det sker altid.' },
 ];
 
+/** Engangsudgifter ved indflytning, skønnet ud fra huslejen. */
+export function createMoveIn(profile, rent = RENT_GUIDE[profile.city]?.[profile.housing] ?? 4500) {
+  const dorm = profile.housing === 'dorm';
+  const item = (label, amount, hint = '', enabled = true) => ({ id: uid(), label, amount: Math.round(amount), enabled, hint });
+  return {
+    saved: 0,
+    monthlySaving: 1000,
+    items: [
+      item('Depositum', rent * (dorm ? 1.5 : 3), 'Op til 3 måneders husleje. Du får det tilbage ved fraflytning, minus istandsættelse.'),
+      item('Forudbetalt leje', dorm ? 0 : rent, 'Udlejer må kræve op til 3 måneder. Det dækker de sidste måneder, du bor der.', !dorm),
+      item('Første måneds husleje', rent, 'Betales som regel inden du får nøglen.'),
+      item('Seng og madras', 2500, 'Køb brugt, eller spørg familien – her er mange penge at spare.'),
+      item('Bord, stole og opbevaring', 2000),
+      item('Køkkenting og service', 1200, 'Gryder, pander, tallerkener, bestik.'),
+      item('Dyne, pude, sengetøj og håndklæder', 1000),
+      item('Rengøringsting og første storindkøb', 1000),
+      item('Flytning (trailer/varevogn)', 600),
+      item('Oprettelse af internet', 300, '', profile.housing === 'alone'),
+      item('Vaskemaskine / hvidevarer', 0, 'Kun hvis de ikke følger med boligen.', false),
+    ],
+  };
+}
+
+/** Sørger for at ældre budgetter og backups også har indflytningsdelen. */
+export function ensureMoveIn(budget) {
+  if (!budget.moveIn || !Array.isArray(budget.moveIn.items)) {
+    const rent = budget.expenses.find((e) => e.categoryId === 'bolig' && /husleje/i.test(e.label))?.amount;
+    budget.moveIn = createMoveIn(budget.profile, Number(rent) > 0 ? Number(rent) : undefined);
+  }
+  return budget;
+}
+
 const resolve = (v, profile, fallback) =>
   typeof v === 'function' ? v(profile) : v ?? fallback;
 
 /**
- * @param {{name?: string, housing: string, city: string, hasCar: boolean, jobGross?: number}} input
+ * @param {{name?: string, housing: string, city: string, hasCar: boolean, jobGross?: number, hasSu?: boolean}} input
  * @returns {import('./model.js').Budget}
  */
 export function createBudgetFromProfile(input) {
@@ -91,12 +123,13 @@ export function createBudgetFromProfile(input) {
     profile,
     tax: { ...RATES.tax },
     incomes: [
-      income('su', 'SU (udeboende)', RATES.suUdeboendeGross, true, true),
+      income('su', 'SU (udeboende)', RATES.suUdeboendeGross, input.hasSu !== false, true),
       income('job', 'Studiejob', jobGross, jobGross > 0, true),
       income('boligstotte', 'Boligstøtte', 0, false),
       income('su_loan', 'SU-lån', RATES.suLoanMonthly, false),
       income('parents', 'Hjælp hjemmefra', 0, false),
     ],
+    moveIn: createMoveIn(profile),
     expenses: EXPENSE_TEMPLATE.map((t) => ({
       id: uid(),
       categoryId: t.categoryId,

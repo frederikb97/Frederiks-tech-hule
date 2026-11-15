@@ -19,7 +19,8 @@ a { color: var(--accent); }
 .topbar { position: sticky; top: 0; z-index: 5; background: var(--card); border-bottom: 1px solid var(--line);
   display: flex; flex-wrap: wrap; align-items: center; gap: .25rem 1rem; padding: .5rem 1rem; }
 .brand { font-weight: 700; color: var(--text); text-decoration: none; margin-right: auto; }
-nav { display: flex; gap: .25rem; }
+nav { display: flex; gap: .15rem; overflow-x: auto; max-width: 100%; }
+nav a { white-space: nowrap; }
 nav a { padding: .4rem .7rem; border-radius: 999px; text-decoration: none; color: var(--muted); font-size: .95rem; }
 nav a.active { background: var(--accent); color: var(--accent-text); }
 
@@ -54,6 +55,7 @@ input[type="checkbox"], input[type="radio"] { width: 1.15rem; height: 1.15rem; a
 .row.off .label, .row.off .amount { opacity: .5; text-decoration: line-through; }
 .row-main { display: grid; grid-template-columns: auto minmax(0, 1fr) 6.5rem auto auto; gap: .4rem; align-items: center; }
 .row-main .amount { text-align: right; width: 100%; }
+.row-main.once { grid-template-columns: auto minmax(0, 1fr) 6.5rem auto; }
 .row-sub { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem .8rem; margin: .35rem 0 0 1.6rem; font-size: .85rem; }
 .row-sub select { padding: .2rem .4rem; }
 .row + .btn { margin-top: .6rem; }

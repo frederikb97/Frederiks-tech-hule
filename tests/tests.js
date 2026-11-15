@@ -1,5 +1,5 @@
 // Kør: python3 -m http.server 8000  →  åbn http://localhost:8000/tests/
-import { computeIncome, requiredExtraJobGross, summarize, taxOn, toMonthly, advice } from '../js/domain/calc.js';
+import { computeIncome, requiredExtraJobGross, summarize, summarizeMoveIn, taxOn, toMonthly, advice } from '../js/domain/calc.js';
 import { createBudgetFromProfile } from '../js/domain/templates.js';
 import { activeBudget } from '../js/domain/model.js';
 import { createRepository, memoryAdapter, migrate, STORAGE_KEY } from '../js/data/storage.js';
@@ -91,6 +91,32 @@ test('eksport: CSV i dansk Excel-format, JSON-rundtur', () => {
   eq(back.expenses.length, b.expenses.length);
   let threw = false; try { budgetFromJson('{"x":1}'); } catch { threw = true; }
   eq(threw, true);
+});
+test('indflytning: total, mangler og måneder', () => {
+  const b = make();
+  b.moveIn.items = [{ id: 'a', label: 'Depositum', amount: 9000, enabled: true }, { id: 'b', label: 'Sofa', amount: 3000, enabled: false }, { id: 'c', label: 'x', amount: -5, enabled: true }];
+  b.moveIn.saved = 2000; b.moveIn.monthlySaving = 1500;
+  const m = summarizeMoveIn(b);
+  eq(m.total, 9000); eq(m.missing, 7000); eq(m.months, 5);
+  b.moveIn.monthlySaving = 0; eq(summarizeMoveIn(b).months, null);
+  b.moveIn.saved = 99999; eq(summarizeMoveIn(b).missing, 0); eq(summarizeMoveIn(b).months, 0);
+});
+test('indflytning: kollegium har lavere depositum og ingen forudbetalt leje', () => {
+  const dorm = make({ housing: 'dorm' }), alone = make({ housing: 'alone' });
+  if (summarizeMoveIn(dorm).total >= summarizeMoveIn(alone).total) throw new Error('kollegium bør være billigst');
+  eq(dorm.moveIn.items.find((i) => /Forudbetalt/.test(i.label)).enabled, false);
+});
+test('migrering v1 → v2 tilføjer indflytning ud fra den gemte husleje', () => {
+  const old = make(); delete old.moveIn; old.expenses[0].amount = 4000;
+  const state = migrate(JSON.parse(JSON.stringify({ schemaVersion: 1, activeBudgetId: old.id, budgets: [old] })));
+  eq(state.schemaVersion, 2); eq(state.budgets[0].moveIn.items[0].amount, 12000);
+  const legacy = make(); delete legacy.moveIn;
+  eq(Array.isArray(budgetFromJson(budgetToJson(legacy)).moveIn.items), true);
+  if (!budgetToCsv(make()).includes('Indflytning;;Mangler;')) throw new Error('CSV mangler indflytning');
+});
+test('uden SU: SU-rækken er slået fra', () => {
+  const b = make({ hasSu: false, jobGross: 14000 });
+  eq(b.incomes.find((i) => i.type === 'su').enabled, false); eq(summarize(b).income.suNet, 0);
 });
 
 const failed = results.filter((r) => r.startsWith('FAIL')).length;

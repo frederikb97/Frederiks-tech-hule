@@ -8,7 +8,7 @@ Hjælpe unge, der skal flytte hjemmefra og ikke kender til privatøkonomi, med a
 2. se **hvad de skal bruge ud over deres SU** – og hvor mange timers arbejde det svarer til,
 3. **lære at lave et budget** og selv rette det til, også i Excel.
 
-Princip: man starter aldrig på et tomt ark. Fire spørgsmål giver et udfyldt budget med vejledende beløb, som man retter.
+Princip: man starter aldrig på et tomt ark. Fem spørgsmål giver et udfyldt budget med vejledende beløb, som man retter.
 
 ## Arkitektur
 
@@ -18,7 +18,7 @@ Statisk webapp uden build-trin og uden server: HTML, CSS og JavaScript-moduler. 
 ┌──────────────────────────── Browser ────────────────────────────┐
 │  UI (js/ui)                                                      │
 │   app.js      routing via #hash, tegner den aktive visning       │
-│   views/      start · budget · overview · learn                  │
+│   views/      start · budget · movein · overview · learn         │
 │   store.js    én tilstand; gemmer ved hver ændring               │
 │        │ læser/ændrer                    │ kalder                │
 │        ▼                                 ▼                       │
@@ -55,13 +55,16 @@ Budget
  ├─ tax     : TaxSettings   taxRate, monthlyAllowance, amRate
  ├─ incomes : Income[]      id, type (su|job|su_loan|boligstotte|parents|other),
  │                          label, amount, period, beforeTax, enabled
- └─ expenses: Expense[]     id, categoryId, label, amount, period,
-                            kind (fixed|variable|savings), enabled, hint
+ ├─ expenses: Expense[]     id, categoryId, label, amount, period,
+ │                          kind (fixed|variable|savings), enabled, hint
+ └─ moveIn  : MoveIn        items[] (id, label, amount, enabled, hint),
+                            saved, monthlySaving
 ```
 
 - **Period** (`month|quarter|halfyear|year`): beløb gemmes, som de står på regningen, og omregnes til måned ved beregning.
 - **enabled**: poster kan slås fra uden at blive slettet – så kan man se, hvad man *kunne* have af udgifter (fx bil).
 - **Kategorier** er en fast liste i `model.js` (bolig, mad, abonnementer, forsikring, transport, bil, personligt, fornøjelser, studie, opsparing). Udgifter peger på dem med `categoryId`.
+- **moveIn** er engangsudgifter ved indflytning (depositum, forudbetalt leje, møbler). De holdes adskilt fra månedsbudgettet og skønnes ud fra huslejen. Kom til i skemaversion 2; ældre data og backups får den tilføjet ved indlæsning.
 - Præcise typer står som JSDoc i `js/domain/model.js`.
 
 ## Beregninger (`calc.js`)
@@ -75,6 +78,8 @@ Budget
 | **Behov ud over SU** | `max(0, udgifter − SU efter skat)` |
 | Ekstra løn før skat | det lønbeløb, der efter AM og skat dækker underskuddet |
 | Timer pr. måned | `ekstra løn / timeløn` |
+| Indflytning mangler | `max(0, sum af engangsudgifter − opsparet)` |
+| Måneder til klar | `mangler / månedlig opsparing`, rundet op |
 
 Skatten er et bevidst forenklet skøn (uden beskæftigelsesfradrag m.m.). Brugeren kan rette trækprocent og fradrag eller indtaste beløb efter skat.
 
@@ -89,6 +94,5 @@ Ligger samlet i `js/domain/rates.js` og `templates.js` og skal opdateres årligt
 
 ## Mulige næste skridt
 
-- Engangsudgifter ved indflytning (depositum, forudbetalt leje, møbler).
 - Opfølgning: faktisk forbrug mod budget, måned for måned.
 - Ægte `.xlsx`-eksport med formler; synkronisering mellem enheder.

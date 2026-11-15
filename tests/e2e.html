@@ -43,6 +43,16 @@ try {
   check('overblik vises', /ud over din SU/.test($('main').textContent));
   check('ingen NaN/undefined i overblik', !/NaN|undefined/.test($('main').textContent));
   out.push('     behov: ' + $('.big').textContent.trim());
+  check('overblik nævner indflytning', /Indflytningen koster/.test($('main').textContent));
+  f.contentWindow.location.hash = 'movein'; await wait(100);
+  check('indflytning vises', /Engangsudgifter/.test($('main').textContent));
+  const sv = $('input[data-setting="saved"]');
+  sv.focus(); sv.value = '999999'; sv.dispatchEvent(new Event('input', { bubbles: true })); await wait();
+  check('opsparing dækker indflytning', $('[data-mi="missing"]').textContent.trim() === '0 kr.' && d().activeElement === sv, $('[data-mi="missing"]').textContent);
+  const n = d().querySelectorAll('.row').length;
+  $('button[data-action="add"]').click(); await wait();
+  check('tilføj engangsudgift', d().querySelectorAll('.row').length === n + 1);
+  check('ingen NaN/undefined i indflytning', !/NaN|undefined/.test($('main').textContent));
   f.contentWindow.location.hash = 'learn'; await wait(100);
   check('lær vises', /Sådan laver du et budget/.test($('main').textContent));
   f.contentWindow.location.reload();

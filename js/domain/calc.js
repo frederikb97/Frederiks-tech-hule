@@ -103,6 +103,17 @@ export function summarize(budget, rates = RATES) {
   };
 }
 
+/** Engangsudgifter ved indflytning: hvad koster det, hvad mangler der, og hvor længe skal der spares? */
+export function summarizeMoveIn(budget) {
+  const m = budget.moveIn ?? { items: [], saved: 0, monthlySaving: 0 };
+  const pos = (v) => (Number.isFinite(Number(v)) && Number(v) > 0 ? Number(v) : 0);
+  const total = m.items.filter((i) => i.enabled).reduce((s, i) => s + pos(i.amount), 0);
+  const saved = pos(m.saved);
+  const missing = Math.max(0, total - saved);
+  const monthly = pos(m.monthlySaving);
+  return { total, saved, missing, monthlySaving: monthly, months: missing === 0 ? 0 : monthly > 0 ? Math.ceil(missing / monthly) : null };
+}
+
 /** Konkrete råd ud fra tallene. @returns {{level: 'bad'|'warn'|'good'|'info', text: string}[]} */
 export function advice(budget, s) {
   const out = [];
