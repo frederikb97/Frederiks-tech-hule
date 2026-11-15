@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="da"><head><meta charset="utf-8"><title>E2E</title></head>
+<body><pre id="out">kører…</pre><iframe id="f" src="../index.html" style="width:420px;height:800px"></iframe>
+<script type="module">
+// Klikker appen igennem i en iframe. Rydder gemte data først!
+const out = [];
+const check = (name, ok, extra = '') => out.push((ok ? 'ok   ' : 'FAIL ') + name + (ok ? '' : ' — ' + extra));
+const wait = (ms = 50) => new Promise((r) => setTimeout(r, ms));
+const f = document.getElementById('f');
+localStorage.removeItem('budgetmodel');
+f.contentWindow.location.reload();
+await new Promise((r) => f.addEventListener('load', r, { once: true }));
+await wait(200);
+const d = () => f.contentDocument;
+const $ = (s) => d().querySelector(s);
+const errors = [];
+f.contentWindow.addEventListener('error', (e) => errors.push(e.message));
+try {
+  check('start vises uden budget', !!$('form[data-action="create"]'));
+  $('input[name="name"]').value = 'Test <b>';
+  $('input[name="jobGross"]').value = '4000';
+  $('form').requestSubmit();
+  await wait(100);
+  check('budget vises efter oprettelse', $('.page-title')?.textContent === 'Test <b>', $('.page-title')?.innerHTML);
+  check('gemt i localStorage', JSON.parse(localStorage.getItem('budgetmodel')).budgets.length === 1);
+  const before = $('.sumbar [data-sum="expenses"]').textContent;
+  const amt = $('input[data-list="expenses"][data-field="amount"]');
+  amt.focus(); amt.value = '9999';
+  amt.dispatchEvent(new Event('input', { bubbles: true }));
+  await wait();
+  check('total opdateres mens man skriver', $('.sumbar [data-sum="expenses"]').textContent !== before, before);
+  check('feltet beholder fokus', d().activeElement === amt);
+  const rows = d().querySelectorAll('.row').length;
+  const cb = $('input[data-list="expenses"][data-field="enabled"]');
+  cb.checked = false; cb.dispatchEvent(new Event('change', { bubbles: true }));
+  await wait();
+  check('flueben slår post fra', $('.row.off input[data-list="expenses"]') !== null);
+  $('button[data-action="add-expense"]').click(); await wait();
+  check('tilføj udgift', d().querySelectorAll('.row').length === rows + 1);
+  $('button[data-action="remove"][data-list="expenses"]').click(); await wait();
+  check('fjern udgift', d().querySelectorAll('.row').length === rows);
+  f.contentWindow.location.hash = 'overview'; await wait(100);
+  check('overblik vises', /ud over din SU/.test($('main').textContent));
+  check('ingen NaN/undefined i overblik', !/NaN|undefined/.test($('main').textContent));
+  out.push('     behov: ' + $('.big').textContent.trim());
+  f.contentWindow.location.hash = 'learn'; await wait(100);
+  check('lær vises', /Sådan laver du et budget/.test($('main').textContent));
+  f.contentWindow.location.reload();
+  await new Promise((r) => f.addEventListener('load', r, { once: true })); await wait(200);
+  f.contentWindow.location.hash = 'budget'; await wait(100);
+  check('data overlever genindlæsning', $('input[data-list="expenses"][data-field="amount"]')?.value !== undefined && $('.page-title')?.textContent === 'Test <b>');
+} catch (e) { out.push('FAIL undtagelse — ' + e.message); }
+check('ingen JS-fejl', errors.length === 0, errors.join('; '));
+localStorage.removeItem('budgetmodel');
+document.getElementById('out').textContent = out.join('\n');
+</script></body></html>
