@@ -10,7 +10,7 @@ python3 -m http.server 8000
 
 Åbn <http://localhost:8000>. (Filen kan ikke åbnes direkte fra disken – browsere kræver en webserver til JavaScript-moduler.)
 
-Der er intet build-trin og ingen afhængigheder. Data gemmes kun i din egen browser.
+Der er intet build-trin. Brugerfladen bruger Fluent UI Web Components, som ligger i `vendor/fluent/`. Data gemmes kun i din egen browser.
 
 ## Test
 

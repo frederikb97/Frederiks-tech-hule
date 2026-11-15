@@ -1,3 +1,4 @@
+import './fluent.js';
 import { activeBudget } from '../domain/model.js';
 import { createRepository } from '../data/storage.js';
 import { createStore } from './store.js';

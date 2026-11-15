@@ -20,6 +20,7 @@ Statisk webapp uden build-trin og uden server: HTML, CSS og JavaScript-moduler. 
 │   app.js      routing via #hash, tegner den aktive visning       │
 │   views/      start · budget · movein · overview · learn         │
 │   store.js    én tilstand; gemmer ved hver ændring               │
+│   fluent.js   registrerer Fluent UI-komponenter og tema          │
 │        │ læser/ændrer                    │ kalder                │
 │        ▼                                 ▼                       │
 │  Datalag (js/data)                 Domæne (js/domain)            │
@@ -33,6 +34,8 @@ Statisk webapp uden build-trin og uden server: HTML, CSS og JavaScript-moduler. 
 ```
 
 Afhængigheder går kun nedad: `ui → data → domain`. Domænet er rene funktioner uden DOM og lagring, så det kan testes isoleret og genbruges, hvis der senere kommer en server eller en mobilapp.
+
+**Brugerflade:** Fluent UI Web Components v2 (`<fluent-button>`, `<fluent-text-field>`, `<fluent-select>`, `<fluent-checkbox>`, `<fluent-accordion>` m.fl.). Biblioteket ligger i `vendor/fluent/` og indlæses som et almindeligt modul, så der stadig ikke er noget build-trin. Sidens egne farver bruger Fluents design-tokens, så lyst og mørkt tema følger enheden.
 
 **Hvorfor sådan?**
 
