@@ -22,6 +22,12 @@ f.contentWindow.addEventListener('error', (e) => errors.push(e.message));
 try {
   check('start vises uden budget', !!$('[data-action="create"]'));
   check('Fluent-komponenter er registreret', !!f.contentWindow.customElements.get('fluent-text-field') && !!$('fluent-radio-group')?.shadowRoot);
+  const chip = $('[data-action="pick-name"]');
+  check('navneforslag vises', d().querySelectorAll('[data-action="pick-name"]').length === 4 && $('[name="name"]').getAttribute('placeholder') !== 'Mit budget');
+  chip.click(); await wait();
+  check('klik på forslag udfylder navnet', $('[name="name"]').value === chip.dataset.name);
+  $('[data-action="more-names"]').click(); await wait();
+  check('nye forslag', d().querySelectorAll('[data-action="pick-name"]').length === 4);
   $('[name="name"]').value = 'Test <b>';
   $('[name="jobGross"]').value = '4000';
   $('[data-action="create"]').click();

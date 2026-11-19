@@ -1,6 +1,7 @@
 // Kør: python3 -m http.server 8000  →  åbn http://localhost:8000/tests/
 import { computeIncome, requiredExtraJobGross, summarize, summarizeMoveIn, taxOn, toMonthly, advice } from '../js/domain/calc.js';
 import { createBudgetFromProfile } from '../js/domain/templates.js';
+import { NAME_IDEAS, suggestNames } from '../js/domain/names.js';
 import { activeBudget } from '../js/domain/model.js';
 import { createRepository, memoryAdapter, migrate, STORAGE_KEY } from '../js/data/storage.js';
 import { budgetFromJson, budgetToCsv, budgetToJson } from '../js/data/exporters.js';
@@ -126,6 +127,16 @@ test('uddannelse: 18-19-årige får grundsats, og ungdomsuddannelse har lavere f
   eq(summarize(uu).fribeloebExceeded, true); eq(summarize(vu).fribeloebExceeded, false);
   const none = make({ education: 'none', jobGross: 30000 }); none.expenses = [];
   eq(summarize(none).fribeloebExceeded, false); eq(none.incomes.find((i) => i.type === 'su').enabled, false);
+});
+test('navneforslag: forskellige, springer brugte navne over, holder sig til listen', () => {
+  const four = suggestNames(4);
+  eq(four.length, 4); eq(new Set(four).size, 4);
+  if (!four.every((n) => NAME_IDEAS.includes(n))) throw new Error('ukendt navn');
+  const taken = NAME_IDEAS.slice(0, -2).map((n) => ' ' + n.toUpperCase() + ' ');
+  const left = suggestNames(5, taken);
+  eq(left.length, 2);
+  if (left.some((n) => !NAME_IDEAS.slice(-2).includes(n))) throw new Error('foreslog et brugt navn');
+  eq(suggestNames(0).length, 0);
 });
 
 const failed = results.filter((r) => r.startsWith('FAIL')).length;

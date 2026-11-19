@@ -1,9 +1,23 @@
 import { CITY_LABELS, EDUCATION_LABELS, HOUSING_LABELS, activeBudget } from '../../domain/model.js';
 import { createBudgetFromProfile } from '../../domain/templates.js';
 import { RATES } from '../../domain/rates.js';
+import { suggestNames } from '../../domain/names.js';
 import { esc, kr, num, options, radios } from '../util.js';
 
+const chips = (names) =>
+  names.map((n) => `<fluent-button class="name-chip" appearance="outline" data-action="pick-name" data-name="${esc(n)}">${esc(n)}</fluent-button>`).join('');
+
+/** Første forslag bliver pladsholder (og navnet, hvis feltet står tomt); resten vises som knapper. */
+function nameIdeas(root, state) {
+  const [placeholder, ...rest] = suggestNames(5, state.budgets.map((b) => b.name));
+  const field = root.querySelector('[name="name"]');
+  if (placeholder) field?.setAttribute('placeholder', placeholder);
+  const box = root.querySelector('.name-chips');
+  if (box) box.innerHTML = chips(rest);
+}
+
 export function render(state) {
+  const [placeholder, ...ideas] = suggestNames(5, state.budgets.map((b) => b.name));
   const current = activeBudget(state);
   const list = state.budgets.length
     ? `<section class="card">
@@ -34,7 +48,12 @@ export function render(state) {
     ${list}
     <section class="card form">
       <h2>${state.budgets.length ? 'Lav et nyt budget' : 'Lav dit første budget'}</h2>
-      <fluent-text-field name="name" appearance="filled" placeholder="Mit budget" maxlength="60">Hvad skal budgettet hedde?</fluent-text-field>
+      <fluent-text-field name="name" appearance="filled" placeholder="${esc(placeholder ?? 'Mit budget')}" maxlength="60">Hvad skal budgettet hedde?</fluent-text-field>
+      <div class="name-ideas">
+        <small class="muted">Mangler du et navn? Tryk på et forslag:</small>
+        <div class="name-chips">${chips(ideas)}</div>
+        <fluent-button appearance="stealth" data-action="more-names">🎲 Nye forslag</fluent-button>
+      </div>
 
       <div class="q"><span class="step">1</span><div>
         <fluent-radio-group name="housing" orientation="vertical" value="shared">
@@ -71,7 +90,7 @@ export function handle(type, ev, store, root) {
   if (action === 'create') {
     const val = (name) => root.querySelector(`[name="${name}"]`);
     const budget = createBudgetFromProfile({
-      name: val('name').value,
+      name: val('name').value.trim() || val('name').getAttribute('placeholder'),
       housing: val('housing').value || 'shared',
       city: val('city').value || 'aarhus',
       hasCar: !!val('hasCar').checked,
@@ -84,6 +103,13 @@ export function handle(type, ev, store, root) {
     });
     location.hash = 'budget';
   }
+  if (action === 'pick-name') {
+    const field = root.querySelector('[name="name"]');
+    field.value = btn.dataset.name;
+    field.focus();
+    return;
+  }
+  if (action === 'more-names') return nameIdeas(root, store.get());
   if (action === 'open') {
     store.update((s) => void (s.activeBudgetId = id));
     location.hash = 'budget';

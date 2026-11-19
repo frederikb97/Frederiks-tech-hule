@@ -66,6 +66,10 @@ nav a.active::after { content: ""; position: absolute; left: .75rem; right: .75r
 
 /* Startformular */
 .form fluent-text-field { display: block; width: 100%; margin-bottom: .25rem; }
+.name-ideas { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; margin: .5rem 0 0; }
+.name-ideas > small { flex-basis: 100%; }
+.name-chips { display: contents; }
+.name-chip::part(control) { border-radius: 999px; padding: 0 .8rem; font-size: .88rem; }
 .form fluent-text-field::part(label) { font-weight: 600; font-size: 1rem; margin-bottom: .35rem; }
 .q { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: .9rem; padding: 1.1rem 0; border-top: 1px solid var(--line); }
 .q:first-of-type { margin-top: 1rem; }
